@@ -112,5 +112,6 @@ model.add(Dense(num_classes, activation='softmax'))
 
 opt = tf.keras.optimizers.Adam(lr=1e-3, decay=1e-5)
 model.compile(loss='sparse_categorical_crossentropy', optimizer=opt, metrics=['accuracy'])
-model.fit(x_train, y_train, epochs=3, validation_data=(x_test, y_test))
+model.fit(x_train, y_train, epochs=3, validation_split=0.5)
 
+model.evaluate(x_test, y_test)
