@@ -1,11 +1,15 @@
+import tensorflow as tf
 from tensorflow.keras.preprocessing import sequence
 from sklearn.model_selection import train_test_split
+from tensorflow.keras.layers import LSTM, Dense, Bidirectional
+import numpy as np
+import tensorflow.keras as keras
 import pandas as pd
 from os import listdir
 import glob
 import code
 
-DEBUG = True
+DEBUG = False
 
 # % of dataset to allocate to training
 TRAINING_SPLIT = 0.6
@@ -24,6 +28,7 @@ COLUMNS_OF_INTEREST = ['hips_joint1','hips_joint2','hips_joint3','hips_joint5','
 MAX_CAPTURED_SEQUENCE = 328
 
 CAPTURES_PER_EXERCISE = 10
+NUM_EXERCISES = 3
 
 CAPTURED_DATA_DIR = "./captured/*/*.csv"
 
@@ -52,7 +57,7 @@ def loadLabelData():
 	y = []
 	for f in all_files:
 		with open(f, 'r') as file:
-			label = file.read().replace('\n','')
+			label = int(file.read().replace('\n',''))
 			for i in range(CAPTURES_PER_EXERCISE):
 				y.append(label)
 	if DEBUG: 
@@ -64,13 +69,23 @@ print("Filtering on the following columns: \n", "\n".join(COLUMNS_OF_INTEREST))
 x = loadCapturedData()
 y = loadLabelData()
 
-x = sequence.pad_sequences(x, maxlen=MAX_CAPTURED_SEQUENCE)
-
-
-# TODO Add shuffle
-x_train, x_test, y_train, y_test = train_test_split(x,y, train_size=TRAINING_SPLIT)
-
-print(x)
+# TODO Center padding
+x = sequence.pad_sequences(x, maxlen=MAX_CAPTURED_SEQUENCE, dtype=float)
+y = np.array(y,dtype=int)
 
 if DEBUG:
 	code.interact(local=locals())
+
+# TODO Add shuffle
+x_train, x_test, y_train, y_test = train_test_split(x,y, train_size=TRAINING_SPLIT, test_size = 1-TRAINING_SPLIT)
+
+layer1 = Bidirectional(LSTM(128))
+layer2 = Dense(128, activation='softmax')
+
+model = keras.models.Sequential([layer1, layer2])
+
+model.compile(optimizer = tf.optimizers.Adam(), loss='sparse_categorical_crossentropy', metrics=['accuracy'])
+
+model.fit(x_train, y_train,epochs=25)
+
+model.evaluate(x_test, y_test)
