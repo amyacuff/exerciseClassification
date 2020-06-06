@@ -1,4 +1,6 @@
 import tensorflow as tf
+import tensorboard
+from datetime import datetime
 from tensorflow.keras.preprocessing import sequence
 from sklearn.model_selection import train_test_split
 from tensorflow.keras.layers import LSTM, Dense, Bidirectional
@@ -119,6 +121,9 @@ if DEBUG:
 # TODO Add shuffle
 x_train, x_test, y_train, y_test = train_test_split(x,y, train_size=TRAINING_SPLIT, test_size = 1-TRAINING_SPLIT)
 
+LOG_DIR="logs/fit/" + datetime.now().strftime("%Y%m%d-%H%M%S")
+log = keras.callbacks.TensorBoard(log_dir=LOG_DIR)
+
 layer1 = Bidirectional(LSTM(256))
 layer2 = Dense(3, activation='softmax')
 
@@ -126,6 +131,6 @@ model = keras.models.Sequential([layer1, layer2])
 
 model.compile(optimizer = tf.optimizers.Adam(), loss='sparse_categorical_crossentropy', metrics=['accuracy'])
 
-model.fit(x_train, y_train,epochs=25)
+model.fit(x_train, y_train,epochs=1, callbacks=[log])
 
 model.evaluate(x_test, y_test)
