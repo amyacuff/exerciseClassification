@@ -14,7 +14,7 @@ import code
 DEBUG = False
 
 # % of dataset to allocate to training
-TRAINING_SPLIT = 0.6
+TRAINING_SPLIT = 0.5
 
 JOINTS_OF_INTEREST = [
 'root',
@@ -104,6 +104,16 @@ def loadLabelData():
 		print(y)
 	return y
 
+class CheckLossThreshold(tf.keras.callbacks.Callback):
+	def on_epoch_end(self, epoch, logs={}):
+		if(logs.get('loss')<0.01):
+			print("\nReached target loss theshold")
+			self.model.stop_training=True
+
+callbacks=[CheckLossThreshold()]
+if DEBUG:
+	callbacks=[log]
+
 COLUMNS_OF_INTEREST = genColumnsOfInterestWith(JOINTS_OF_INTEREST)
 
 print("Filtering on the following columns: \n", "\n".join(COLUMNS_OF_INTEREST))
@@ -124,13 +134,14 @@ x_train, x_test, y_train, y_test = train_test_split(x,y, train_size=TRAINING_SPL
 LOG_DIR="logs/fit/" + datetime.now().strftime("%Y%m%d-%H%M%S")
 log = keras.callbacks.TensorBoard(log_dir=LOG_DIR)
 
-layer1 = Bidirectional(LSTM(256))
-layer2 = Dense(3, activation='softmax')
+layer1 = LSTM(256, return_sequences=True)
+layer2 = LSTM(256)
+layer3 = Dense(3, activation='softmax')
 
-model = keras.models.Sequential([layer1, layer2])
+model = keras.models.Sequential([layer1, layer2, layer3])
 
 model.compile(optimizer = tf.optimizers.Adam(), loss='sparse_categorical_crossentropy', metrics=['accuracy'])
 
-model.fit(x_train, y_train,epochs=1, callbacks=[log])
+model.fit(x_train, y_train,epochs=100, callbacks=callbacks)
 
 model.evaluate(x_test, y_test)
