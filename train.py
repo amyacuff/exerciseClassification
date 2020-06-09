@@ -157,6 +157,6 @@ model = keras.models.Sequential([layer1, layer2, layer3])
 
 model.compile(optimizer = tf.optimizers.Adam(), loss='sparse_categorical_crossentropy', metrics=['accuracy'])
 
-model.fit(x_train, y_train,epochs=50, callbacks=callbacks)
+model.fit(x_train, y_train,epochs=100, callbacks=callbacks)
 
 model.evaluate(x_test, y_test)
