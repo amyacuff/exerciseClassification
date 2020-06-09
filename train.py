@@ -1,3 +1,4 @@
+import sys
 import tensorflow as tf
 import tensorboard
 from datetime import datetime
@@ -12,10 +13,10 @@ import glob
 import code
 
 DEBUG = False
-TUNE = True
+TUNE = False
 
 # % of dataset to allocate to training
-TRAINING_SPLIT = 0.5
+TRAINING_SPLIT = 0.6
 
 JOINTS_OF_INTEREST = [
 'root',
@@ -48,10 +49,12 @@ JOINTS_OF_INTEREST = [
 'right_forearm_joint'
 ]
 
-# This is the longest data capture, aka highest number of rows in all the csvs
-
-# TODO When tuning, reduce
+# This is the longest data capture (highest number of rows in all the csv's)
+# TODO When seeking to improve performance, shrink the datasets
 MAX_CAPTURED_SEQUENCE = 328
+
+# Stop training when loss drops below this threshold
+TRAINING_STOP_LOSS = 0.05
 
 CAPTURES_PER_EXERCISE = 10
 NUM_EXERCISES = 3
@@ -107,10 +110,16 @@ def loadLabelData():
 
 class StopAtLossThreshold(tf.keras.callbacks.Callback):
 	def on_epoch_end(self, epoch, logs={}):
-		if(logs.get('loss')<0.01):
+		if(logs.get('loss')<TRAINING_STOP_LOSS):
 			print("\nReached target loss theshold")
 			self.model.stop_training=True
+
 LOG_DIR="logs/fit/" + datetime.now().strftime("%Y%m%d-%H%M%S")
+
+if len(sys.argv) >= 2:
+	name=sys.argv[1]		
+	LOG_DIR="lots/fit/"+name	
+
 logBehavior = keras.callbacks.TensorBoard(log_dir=LOG_DIR)
 
 if TUNE:
