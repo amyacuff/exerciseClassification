@@ -12,7 +12,10 @@ from os import listdir
 import glob
 import code
 
+# Enables verbose printing and interactive console
 DEBUG = False
+
+# Logs to Tensorboard for Analysis
 TUNE = False
 
 # % of dataset to allocate to training
@@ -49,21 +52,21 @@ JOINTS_OF_INTEREST = [
 'right_forearm_joint'
 ]
 
+# Number of exercises in the `captured` folder
+NUM_EXERCISES = 3
+# Number of csv per exercise
+CAPTURES_PER_EXERCISE = 10
+
+CAPTURED_DATA_DIR = "./captured/*/*.csv"
+
+LABEL_DATA_DIR = "./captured/*/*_label.txt"
+
 # This is the longest data capture (highest number of rows in all the csv's)
 # TODO When seeking to improve performance, shrink the datasets
 MAX_CAPTURED_SEQUENCE = 328
 
 # Stop training when loss drops below this threshold
-TRAINING_STOP_LOSS = 0.05
-
-CAPTURES_PER_EXERCISE = 10
-NUM_EXERCISES = 3
-
-CAPTURED_DATA_DIR = "./captured/*/*.csv"
-
-# TODO Ensure captured matches label
-LABEL_DATA_DIR = "./captured/*/*_label.txt"
-
+TRAINING_STOP_LOSS = 0.01
 
 def genColumnsOfInterestWith(joints):
 	# The columns of interest are, for each joint of interest, 
@@ -102,6 +105,7 @@ def loadLabelData():
 	for f in all_files:
 		with open(f, 'r') as file:
 			label = int(file.read().replace('\n',''))
+			# Create 10 labels for each exercise
 			for i in range(CAPTURES_PER_EXERCISE):
 				y.append(label)
 	if DEBUG: 
@@ -111,14 +115,14 @@ def loadLabelData():
 class StopAtLossThreshold(tf.keras.callbacks.Callback):
 	def on_epoch_end(self, epoch, logs={}):
 		if(logs.get('loss')<TRAINING_STOP_LOSS):
-			print("\nReached target loss theshold")
+			print("\nReached end of useful training")
 			self.model.stop_training=True
 
 LOG_DIR="logs/fit/" + datetime.now().strftime("%Y%m%d-%H%M%S")
 
 if len(sys.argv) >= 2:
 	name=sys.argv[1]		
-	LOG_DIR="lots/fit/"+name	
+	LOG_DIR="logs/fit/"+name	
 
 logBehavior = keras.callbacks.TensorBoard(log_dir=LOG_DIR)
 
@@ -145,8 +149,8 @@ if DEBUG:
 x_train, x_test, y_train, y_test = train_test_split(x,y, train_size=TRAINING_SPLIT, test_size = 1-TRAINING_SPLIT)
 
 
-layer1 = LSTM(128, return_sequences=True)
-layer2 = LSTM(128)
+layer1 = Bidirectional(LSTM(256, return_sequences=True))
+layer2 = Bidirectional(LSTM(256))
 layer3 = Dense(3, activation='softmax')
 
 model = keras.models.Sequential([layer1, layer2, layer3])
