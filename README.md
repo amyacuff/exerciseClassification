@@ -9,15 +9,20 @@
 2. File Format:
 
 Format:
-`/captured/<EXERCISE_NAME>/<EXERCISE_ID>_<CAPTURE_ID>.csv`
+`/captured/<EXERCISE_ID>/<EXERCISE_ID>_<CAPTURE_ID>.csv`
 
 Ex:
-`/captured/Exercise1/01/01.csv`
-`/captured/Exercise1/01/02.csv`
+`/captured/01/01/01.csv`
+`/captured/01/01/02.csv`
 
-3. Add `/captured/<EXERCISE_NAME>/<EXERCISE_ID>_label.txt`
+3. Add `/captured/<EXERCISE_ID>/<EXERCISE_ID>_label.txt`
 
-The contents should be <EXERCISE_ID>
+The contents should be `<EXERCISE_ID>`
+
+Ex:
+`/captured/01/01_label.txt` contains the text `01`
+
+
 
 ## Model Configuration
 

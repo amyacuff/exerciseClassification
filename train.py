@@ -12,6 +12,11 @@ from os import listdir
 import glob
 import code
 
+# train.py
+# invoke with python3 train.py [log_file]
+# python3 train.py # Runs until reaches training threshold
+# python3 train.py training_notes # Runs until epochs end, logging stats for Tensorboard visualization
+
 # Enables verbose printing and interactive console
 DEBUG = False
 
