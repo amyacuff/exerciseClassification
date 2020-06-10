@@ -17,6 +17,11 @@ import code
 # python3 train.py # Runs until reaches training threshold
 # python3 train.py training_notes # Runs until epochs end, logging stats for Tensorboard visualization
 
+# Labels:
+# 0: Back Squat
+# 1: Deadlift
+# 2: Shoulder Press
+
 # Enables verbose printing and interactive console
 DEBUG = False
 
@@ -25,6 +30,8 @@ TUNE = False
 
 # % of dataset to allocate to training
 TRAINING_SPLIT = 0.6
+
+NUM_EPOCHS = 100
 
 JOINTS_OF_INTEREST = [
 'root',
@@ -144,6 +151,10 @@ x = loadCapturedData()
 y = loadLabelData()
 
 # TODO Center padding
+# TODO How to handle no skeleton
+# TODO How to handle rest?
+# 0012345000
+# 1234567890
 x = sequence.pad_sequences(x, maxlen=MAX_CAPTURED_SEQUENCE, dtype=float)
 y = np.array(y,dtype=int)
 
@@ -156,12 +167,12 @@ x_train, x_test, y_train, y_test = train_test_split(x,y, train_size=TRAINING_SPL
 
 layer1 = Bidirectional(LSTM(256, return_sequences=True))
 layer2 = Bidirectional(LSTM(256))
-layer3 = Dense(3, activation='softmax')
+layer3 = Dense(NUM_EXERCISES, activation='softmax')
 
 model = keras.models.Sequential([layer1, layer2, layer3])
 
 model.compile(optimizer = tf.optimizers.Adam(), loss='sparse_categorical_crossentropy', metrics=['accuracy'])
 
-model.fit(x_train, y_train,epochs=100, callbacks=callbacks)
+model.fit(x_train, y_train,epochs=NUM_EPOCHS, callbacks=callbacks)
 
 model.evaluate(x_test, y_test)

@@ -22,6 +22,7 @@ The contents should be `<EXERCISE_ID>`
 Ex:
 `/captured/01/01_label.txt` contains the text `01`
 
+Note: Exercises must start with 0
 
 
 ## Model Configuration
@@ -79,6 +80,10 @@ Currently takes MAX_CAPTURED_SEQUENCE datapoints for each joints. Lowering fidel
 #### 7. Capture same exercise with different athletes
 
 #### 8. Capture more than 10 repetitions per exercise
+
+#### 9. Add a 'Idle' label
+
+#### 10. Add a 'No Skeleton' handling use case
 
 ## Appendix
 
