@@ -11,6 +11,8 @@ import pandas as pd
 from os import listdir
 import glob
 import code
+import coremltools
+import tfcoreml
 
 # train.py
 # invoke with python3 train.py [log_file]
@@ -181,14 +183,25 @@ model.evaluate(x_test, y_test)
 
 model.summary()
 
+model._set_inputs(x_train.shape)
+
 model_file = './exercise.h5'
 model.save(model_file)
 
+
+
+#coremlmodel = coremltools.converters.tensorflow.convert(
+#    './exercise.h5',
+#     input_name_shape_dict={'input_1': (328, 252, 1)},
+#     output_feature_names=['Identity'],
+#     minimum_ios_deployment_target='13'
+#)
+#Error Cannot find the Placeholder op that is an input to the ReadVariableOp..
+
 # convert this model to Core ML format
-#get ValueError: Cannot find the Placeholder op that is an input to the ReadVariableOp.
 coremlmodel = tfcoreml.convert('exercise.h5',
 	input_name_shape_dict={'input_1': (1,328, 252)},
     output_feature_names=['sequential/Identity'], 
     minimum_ios_deployment_target='13')
 coremlmodel.save('./exercise.mlmodel')
-
+#ValueError: Failed to load SavedModel or .h5 model. Model <tensorflow.python.keras.engine.sequential.Sequential object at 0x143238d68> cannot be saved because the input shapes have not been set. Usually, input shapes are automatically determined from calling .fit() or .predict(). To manually set the shapes, call model._set_inputs(inputs)..
