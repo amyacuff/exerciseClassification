@@ -4,7 +4,7 @@ import tensorboard
 from datetime import datetime
 from tensorflow.keras.preprocessing import sequence
 from sklearn.model_selection import train_test_split
-from tensorflow.keras.layers import LSTM, Dense, Bidirectional
+from tensorflow.keras.layers import LSTM, Dense, Bidirectional, GRU
 import numpy as np
 import tensorflow.keras as keras
 import pandas as pd
@@ -169,11 +169,10 @@ x_train, x_test, y_train, y_test = train_test_split(x,y, train_size=TRAINING_SPL
 print("Input Shape:")
 print(x_test.shape)
 
-layer1 = Bidirectional(LSTM(256, return_sequences=True))
-layer2 = Bidirectional(LSTM(256))
-layer3 = Dense(NUM_EXERCISES, activation='softmax')
+layer1 = GRU(len(JOINTS_OF_INTEREST) * 9)
+layer2 = Dense(NUM_EXERCISES, activation='softmax')
 
-model = keras.models.Sequential([layer1, layer2, layer3])
+model = keras.models.Sequential([layer1, layer2])
 
 model.compile(optimizer = tf.optimizers.Adam(), loss='sparse_categorical_crossentropy', metrics=['accuracy'])
 
