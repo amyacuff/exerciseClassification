@@ -32,7 +32,7 @@ TUNE = False
 # % of dataset to allocate to training
 TRAINING_SPLIT = 0.6
 
-NUM_EPOCHS = 1
+NUM_EPOCHS = 100
 
 JOINTS_OF_INTEREST = [
 'root',
