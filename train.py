@@ -11,8 +11,7 @@ import pandas as pd
 from os import listdir
 import glob
 import code
-import coremltools
-import tfcoreml
+import coremltools as ct
 
 # train.py
 # invoke with python3 train.py [log_file]
@@ -169,7 +168,7 @@ x_train, x_test, y_train, y_test = train_test_split(x,y, train_size=TRAINING_SPL
 print("Input Shape:")
 print(x_test.shape)
 
-layer1 = Bidirectional(LSTM(256, return_sequences=True))
+layer1 = Bidirectional(LSTM(256, return_sequences=True, input_shape=(328,)))
 layer2 = Bidirectional(LSTM(256))
 layer3 = Dense(NUM_EXERCISES, activation='softmax')
 
@@ -183,25 +182,8 @@ model.evaluate(x_test, y_test)
 
 model.summary()
 
-model._set_inputs(x_train.shape)
-
-model_file = './exercise.h5'
-model.save(model_file)
-
-
-
-#coremlmodel = coremltools.converters.tensorflow.convert(
-#    './exercise.h5',
-#     input_name_shape_dict={'input_1': (328, 252, 1)},
-#     output_feature_names=['Identity'],
-#     minimum_ios_deployment_target='13'
-#)
-#Error Cannot find the Placeholder op that is an input to the ReadVariableOp..
-
-# convert this model to Core ML format
-coremlmodel = tfcoreml.convert('exercise.h5',
-	input_name_shape_dict={'input_1': (1,328, 252)},
-    output_feature_names=['sequential/Identity'], 
-    minimum_ios_deployment_target='13')
-coremlmodel.save('./exercise.mlmodel')
-#ValueError: Failed to load SavedModel or .h5 model. Model <tensorflow.python.keras.engine.sequential.Sequential object at 0x143238d68> cannot be saved because the input shapes have not been set. Usually, input shapes are automatically determined from calling .fit() or .predict(). To manually set the shapes, call model._set_inputs(inputs)..
+# convert to Core ML and check predictions
+shape = ct.Shape(shape=(1, 328,252))
+flexible_input = ct.TensorType(shape=shape)
+coremlmodel = ct.convert(model, inputs=[flexible_input])
+coremlmodel.save('exercise.mlmodel')
