@@ -33,7 +33,7 @@ TUNE = False
 # % of dataset to allocate to training
 TRAINING_SPLIT = 0.6
 
-NUM_EPOCHS = 100
+NUM_EPOCHS = 1
 
 JOINTS_OF_INTEREST = [
 'root',
@@ -169,7 +169,7 @@ x_train, x_test, y_train, y_test = train_test_split(x,y, train_size=TRAINING_SPL
 print("Input Shape:")
 print(x_test.shape)
 
-layer1 = GRU(len(JOINTS_OF_INTEREST) * 9)
+layer1 = GRU(len(JOINTS_OF_INTEREST) * 9, input_shape=(328, 252))
 layer2 = Dense(NUM_EXERCISES, activation='softmax')
 
 model = keras.models.Sequential([layer1, layer2])
@@ -185,7 +185,7 @@ model.summary()
 model._set_inputs(x_train.shape)
 
 model_file = './exercise.h5'
-model.save(model_file)
+model.save('model')
 
 
 
